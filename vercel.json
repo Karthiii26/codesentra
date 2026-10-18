@@ -1,0 +1,12 @@
+﻿{
+  "version": 2,
+  "buildCommand": "",
+  "outputDirectory": "src/web",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "@backend_url/api/:match*"
+    }
+  ]
+}
