@@ -1,0 +1,47 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE & OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs & temp scratch files
+*.log
+scratch/
+test_patterns*.py
+diag_*.py
+
+# Training data (model is pre-trained; data not needed at runtime)
+data/
+
+# Generated evaluation outputs
+results/
+*.npz
+
+# Keep only production model artifacts
+!models/
+!models/dnn_model.pt
+!models/dnn_scaler.pkl

@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/codesentra-logo.jpg",
+      "destination": "/src/web/codesentra-logo.jpg"
+    },
+    {
+      "source": "/api/:match*",
+      "destination": "@backend_url/api/:match*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/src/web/index.html"
+    }
+  ]
+}
