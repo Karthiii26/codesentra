@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -998,6 +998,17 @@
     let bootStartTime = performance.now();
     let bootTimerInterval = null;
 
+    // Backend API Resolution:
+    // If served by the backend directly, use relative path.
+    // If deployed as a Render static site or other host, point to the Render backend service.
+    const API_BASE = window.CODESENTRA_API_URL || (
+      window.location.hostname === "codesentra.onrender.com"
+        ? ""
+        : (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+          ? (window.location.port === "8000" ? "" : "http://localhost:8000")
+          : "https://codesentra.onrender.com"
+    );
+
     // --- Startup Boot Watcher ---
     function updateBootTimer() {
       const elapsedSec = Math.floor((performance.now() - bootStartTime) / 1000);
@@ -1017,7 +1028,7 @@
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 4500);
 
-          const res = await fetch("/api/health", { signal: controller.signal });
+          const res = await fetch(`${API_BASE}/api/health`, { signal: controller.signal });
           clearTimeout(timeoutId);
 
           if (res.ok) {
@@ -1074,7 +1085,7 @@
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-        const res = await fetch("/api/health", { signal: controller.signal });
+        const res = await fetch(`${API_BASE}/api/health`, { signal: controller.signal });
         clearTimeout(timeoutId);
 
         if (res.ok) {
@@ -1123,7 +1134,7 @@
     function updateStats() {
       const val = inputEl.value;
       const lines = val ? val.split("\n").length : 0;
-      infoEl.textContent = `${lines} lines â€¢ ${val.length} chars`;
+      infoEl.textContent = `${lines} lines • ${val.length} chars`;
     }
 
     inputEl.value = "";
@@ -1152,7 +1163,7 @@
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 18000);
 
-        const res = await fetch("/api/analyze", {
+        const res = await fetch(`${API_BASE}/api/analyze`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ code }),

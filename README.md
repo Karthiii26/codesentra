@@ -25,8 +25,7 @@ These 11 features are fed into a 3-layer PyTorch MLP trained on ~180 labelled Py
 | Feature extraction | `radon`, `transformers` (CodeBERT) |
 | API | FastAPI + Uvicorn |
 | Frontend | Vanilla HTML/CSS/JS |
-| Backend hosting | [Render](https://render.com) |
-| Frontend hosting | [Vercel](https://vercel.com) |
+| Backend & Frontend hosting | [Render](https://render.com) |
 
 ---
 
@@ -48,8 +47,7 @@ Then open `src/web/index.html` in a browser, or point the frontend at `http://lo
 ```
 ai-code-detector/
 ├── api_server.py          # FastAPI app — /api/analyze, /api/health
-├── vercel.json            # Vercel rewrite rules (proxies /api/* to Render)
-├── render.yaml            # Render deployment config
+├── render.yaml            # Render deployment config (web service + static site)
 ├── Procfile               # Process start command
 ├── requirements.txt
 ├── models/
