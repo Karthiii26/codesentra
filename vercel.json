@@ -1,18 +1,12 @@
 {
   "version": 2,
+  "buildCommand": "",
+  "outputDirectory": "src/web",
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/codesentra-logo.jpg",
-      "destination": "/src/web/codesentra-logo.jpg"
-    },
-    {
       "source": "/api/:match*",
       "destination": "@backend_url/api/:match*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/src/web/index.html"
     }
   ]
 }
