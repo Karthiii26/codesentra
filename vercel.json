@@ -1,4 +1,4 @@
-﻿{
+{
   "version": 2,
   "buildCommand": "",
   "outputDirectory": "src/web",
@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/:match*",
-      "destination": "@backend_url/api/:match*"
+      "destination": "https://codesentra.onrender.com/api/:match*"
     }
   ]
 }
