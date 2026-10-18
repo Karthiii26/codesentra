@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -68,204 +68,115 @@
     }
 
     /* =========================================================================
-       CLOUD COLD-BOOT & ENGINE READINESS OVERLAY
+       BOOT / LOADING SCREEN
        ========================================================================= */
     #render-boot-screen {
       position: fixed;
       inset: 0;
       z-index: 9999;
-      background: #090d16;
-      background-image: 
-        radial-gradient(circle at 50% 28%, rgba(37, 99, 235, 0.25), transparent 65%),
-        radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.12), transparent 50%),
-        radial-gradient(circle at 20% 70%, rgba(99, 102, 241, 0.1), transparent 50%);
+      background: #f0f2f8;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
       opacity: 1;
       visibility: visible;
-      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-                  transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-                  visibility 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                  visibility 0.55s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     #render-boot-screen.boot-done {
       opacity: 0;
-      transform: scale(1.025);
       visibility: hidden;
       pointer-events: none;
     }
 
     .boot-card {
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
-      padding: 2.75rem 2.25rem;
-      max-width: 480px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7),
-                  0 0 0 1px rgba(255, 255, 255, 0.05);
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .boot-card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #3b82f6, #38bdf8, transparent);
-      animation: scanline 2.5s ease-in-out infinite;
-    }
-
-    @keyframes scanline {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+      text-align: center;
+      gap: 0;
     }
 
     .boot-logo-wrapper {
-      position: relative;
-      width: 76px;
-      height: 76px;
-      margin-bottom: 1.4rem;
+      width: 90px;
+      height: 90px;
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: 0 8px 32px rgba(37, 99, 235, 0.13), 0 2px 8px rgba(0,0,0,0.07);
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .boot-pulse-ring {
-      position: absolute;
-      inset: -8px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(59, 130, 246, 0.4);
-      animation: radarPulse 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
-    }
-
-    .boot-pulse-ring-2 {
-      position: absolute;
-      inset: -18px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(56, 189, 248, 0.2);
-      animation: radarPulse 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite 0.7s;
-    }
-
-    @keyframes radarPulse {
-      0% { transform: scale(0.85); opacity: 0.9; }
-      100% { transform: scale(1.35); opacity: 0; }
+      margin-bottom: 1.6rem;
+      overflow: hidden;
     }
 
     .boot-logo-img {
-      width: 60px;
-      height: 60px;
+      width: 70px;
+      height: 70px;
       object-fit: contain;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
-      position: relative;
-      z-index: 2;
+      border-radius: 14px;
     }
 
     .boot-title {
-      color: #ffffff;
-      font-size: 1.35rem;
+      color: #0f172a;
+      font-size: 1.6rem;
       font-weight: 700;
-      letter-spacing: -0.025em;
-      margin-bottom: 0.3rem;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.4rem;
     }
 
     .boot-subtitle {
-      color: #94a3b8;
-      font-size: 0.84rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .boot-status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.55rem;
-      padding: 0.35rem 0.95rem;
-      border-radius: 999px;
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #e2e8f0;
-      margin-bottom: 1.25rem;
-    }
-
-    .boot-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #38bdf8;
-      animation: pulseBlue 1.6s infinite;
-    }
-
-    .boot-status-pill.online {
-      background: rgba(16, 185, 129, 0.15);
-      border-color: rgba(16, 185, 129, 0.4);
-      color: #34d399;
-    }
-
-    .boot-status-pill.online .boot-dot {
-      background: #10b981;
-      animation: pulseGreen 2s infinite;
-    }
-
-    @keyframes pulseBlue {
-      0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
-      70% { box-shadow: 0 0 0 6px rgba(56, 189, 248, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 400;
+      margin-bottom: 1.8rem;
     }
 
     .boot-progress-track {
-      width: 100%;
+      width: 220px;
       height: 4px;
-      background: rgba(255, 255, 255, 0.08);
+      background: #dde1ee;
       border-radius: 999px;
       overflow: hidden;
-      margin-bottom: 1.15rem;
-      position: relative;
+      margin-bottom: 1.1rem;
     }
 
     .boot-progress-bar {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
+      height: 100%;
       width: 40%;
-      background: linear-gradient(90deg, #2563eb, #38bdf8, #60a5fa);
+      background: linear-gradient(90deg, #6366f1, #818cf8);
       border-radius: 999px;
-      animation: progressIndeterminate 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      animation: progressIndeterminate 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }
 
     @keyframes progressIndeterminate {
-      0% { left: -40%; width: 30%; }
-      50% { left: 30%; width: 50%; }
-      100% { left: 100%; width: 30%; }
+      0%   { margin-left: -40%; width: 35%; }
+      50%  { margin-left: 35%; width: 45%; }
+      100% { margin-left: 110%; width: 35%; }
     }
 
-    .boot-timer-text {
-      color: #38bdf8;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
-      font-weight: 500;
-      margin-bottom: 1rem;
-    }
-
-    .boot-render-note {
-      font-size: 0.75rem;
+    .boot-status-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
       color: #64748b;
-      line-height: 1.55;
-      padding: 0 0.5rem;
+    }
+
+    .boot-spinner {
+      width: 13px;
+      height: 13px;
+      border: 2px solid #c7d2fe;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     /* =========================================================================
@@ -912,34 +823,24 @@
   </style>
 </head>
 <body>
-  <!-- =======================================================================
-       CLOUD COLD-BOOT & ENGINE READINESS OVERLAY
-       ======================================================================= -->
+  <!-- Boot / Loading Screen -->
   <div id="render-boot-screen">
     <div class="boot-card">
       <div class="boot-logo-wrapper">
-        <div class="boot-pulse-ring"></div>
-        <div class="boot-pulse-ring-2"></div>
-        <img src="/codesentra-logo.jpg" alt="CodeSentra Logo" class="boot-logo-img">
+        <img src="/codesentra-logo.jpg" alt="CodeSentra" class="boot-logo-img">
       </div>
 
       <h1 class="boot-title">CodeSentra</h1>
-      <p class="boot-subtitle">AI Code Stylometry & Origin Analysis</p>
-
-      <div id="boot-status-pill" class="boot-status-pill">
-        <span class="boot-dot"></span>
-        <span id="boot-status-text">Connecting to engine...</span>
-      </div>
+      <p class="boot-subtitle">Detect AI-generated code instantly.</p>
 
       <div class="boot-progress-track">
         <div class="boot-progress-bar"></div>
       </div>
 
-      <div id="boot-timer" class="boot-timer-text">Elapsed: 0s</div>
-
-      <p class="boot-render-note">
-        Cloud instances spin down during periods of inactivity. If the service is cold starting, spin-up typically takes ~30–45s. The workspace will launch automatically the moment the engine reports ready.
-      </p>
+      <div class="boot-status-row">
+        <div class="boot-spinner"></div>
+        <span id="boot-status-text">Starting CodeSentra...</span>
+      </div>
     </div>
   </div>
 
@@ -986,7 +887,7 @@
       </div>
 
       <div class="editor-statusbar">
-        <span id="line-char-info">0 lines • 0 chars</span>
+        <span id="line-char-info">0 lines â€¢ 0 chars</span>
         <button id="btn-analyze" class="btn-run">
           <svg class="btn-spinner" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.3"></circle>
@@ -1097,15 +998,13 @@
     let bootStartTime = performance.now();
     let bootTimerInterval = null;
 
-    // --- Startup Boot Watcher (Waits for Engine instance to be online) ---
+    // --- Startup Boot Watcher ---
     function updateBootTimer() {
       const elapsedSec = Math.floor((performance.now() - bootStartTime) / 1000);
-      bootTimer.textContent = `Elapsed: ${elapsedSec}s`;
-
       if (elapsedSec > 40 && !bootCompleted) {
-        bootStatusText.textContent = "Finalizing PyTorch model initialization...";
+        bootStatusText.textContent = "Almost ready...";
       } else if (elapsedSec > 15 && !bootCompleted) {
-        bootStatusText.textContent = "Waking up server instance...";
+        bootStatusText.textContent = "Loading model, this may take a moment...";
       }
     }
 
@@ -1122,34 +1021,28 @@
           clearTimeout(timeoutId);
 
           if (res.ok) {
-            // BACKEND IS ONLINE!
             bootCompleted = true;
             clearInterval(bootTimerInterval);
 
-            bootStatusPill.classList.add("online");
-            bootStatusText.textContent = "Engine Ready! Launching...";
+            bootStatusText.textContent = "Ready!";
 
             isBackendAvailable = true;
             statusPill.className = "status-pill status-online";
-            statusText.textContent = "Engine Online";
-            statusPill.title = "Analysis engine is connected and operational";
+            statusText.textContent = "Online";
+            statusPill.title = "CodeSentra is ready";
             offlineBanner.style.display = "none";
 
-            // Smooth transition out - NO 2-second default delay if server is already warm!
             setTimeout(() => {
               bootScreen.classList.add("boot-done");
-              setTimeout(() => {
-                bootScreen.style.display = "none";
-              }, 500);
-            }, 250);
+              setTimeout(() => { bootScreen.style.display = "none"; }, 550);
+            }, 300);
 
             return;
           }
         } catch (e) {
-          bootStatusText.textContent = "Waking up cloud engine (waiting for response)...";
+          bootStatusText.textContent = "Starting up, please wait...";
         }
 
-        // If not ready yet, re-check in 1500ms
         if (!bootCompleted) {
           setTimeout(pollUntilReady, 1500);
         }
@@ -1230,7 +1123,7 @@
     function updateStats() {
       const val = inputEl.value;
       const lines = val ? val.split("\n").length : 0;
-      infoEl.textContent = `${lines} lines • ${val.length} chars`;
+      infoEl.textContent = `${lines} lines â€¢ ${val.length} chars`;
     }
 
     inputEl.value = "";
