@@ -12,11 +12,12 @@ _PROJECT_ROOT = Path(__file__).resolve().parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+import os
 import numpy as np
 import torch
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
 
 from src.models.dnn_classifier import load_trained_model, predict_proba
@@ -25,19 +26,32 @@ from src.features.perplexity import compute_perplexity_features, merge_features
 
 app = FastAPI(title="AI Code Detector API", version="2.0")
 
-# Allow requests from the React frontend
+# Allow requests from the web frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://codesentra-web.onrender.com",
+        "https://codesentra.onrender.com",
+        "http://localhost:8000",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:8000",
+        "*",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 @app.get("/")
-def serve_react_app():
+def serve_root():
+    # When accessed on Render, redirect to the CDN-powered static frontend
+    if os.environ.get("RENDER"):
+        return RedirectResponse("https://codesentra-web.onrender.com", status_code=307)
     index_path = _PROJECT_ROOT / "src" / "web" / "index.html"
-    return FileResponse(index_path)
+    if index_path.exists():
+        return FileResponse(index_path)
+    return {"service": "CodeSentra API", "status": "online", "web_app": "https://codesentra-web.onrender.com"}
 
 @app.get("/codesentra-logo.jpg")
 def serve_logo():

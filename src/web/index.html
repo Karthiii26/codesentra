@@ -68,118 +68,6 @@
     }
 
     /* =========================================================================
-       BOOT / LOADING SCREEN
-       ========================================================================= */
-    #render-boot-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: #f0f2f8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      opacity: 1;
-      visibility: visible;
-      transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-                  visibility 0.55s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    #render-boot-screen.boot-done {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .boot-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 0;
-    }
-
-    .boot-logo-wrapper {
-      width: 90px;
-      height: 90px;
-      border-radius: 22px;
-      background: #fff;
-      box-shadow: 0 8px 32px rgba(37, 99, 235, 0.13), 0 2px 8px rgba(0,0,0,0.07);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.6rem;
-      overflow: hidden;
-    }
-
-    .boot-logo-img {
-      width: 70px;
-      height: 70px;
-      object-fit: contain;
-      border-radius: 14px;
-    }
-
-    .boot-title {
-      color: #0f172a;
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      margin-bottom: 0.4rem;
-    }
-
-    .boot-subtitle {
-      color: #64748b;
-      font-size: 0.9rem;
-      font-weight: 400;
-      margin-bottom: 1.8rem;
-    }
-
-    .boot-progress-track {
-      width: 220px;
-      height: 4px;
-      background: #dde1ee;
-      border-radius: 999px;
-      overflow: hidden;
-      margin-bottom: 1.1rem;
-    }
-
-    .boot-progress-bar {
-      height: 100%;
-      width: 40%;
-      background: linear-gradient(90deg, #6366f1, #818cf8);
-      border-radius: 999px;
-      animation: progressIndeterminate 1.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    }
-
-    @keyframes progressIndeterminate {
-      0%   { margin-left: -40%; width: 35%; }
-      50%  { margin-left: 35%; width: 45%; }
-      100% { margin-left: 110%; width: 35%; }
-    }
-
-    .boot-status-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.82rem;
-      color: #64748b;
-    }
-
-    .boot-spinner {
-      width: 13px;
-      height: 13px;
-      border: 2px solid #c7d2fe;
-      border-top-color: #6366f1;
-      border-radius: 50%;
-      animation: spin 0.75s linear infinite;
-      flex-shrink: 0;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* =========================================================================
        MAIN APPLICATION LAYOUT
        ========================================================================= */
     header {
@@ -278,8 +166,17 @@
       animation: pulseRed 1.8s infinite;
     }
 
-    .status-pill.status-checking .status-dot {
+    .status-pill.status-checking,
+    .status-pill.status-waking {
+      background: var(--uncertain-subtle);
+      border-color: var(--uncertain-border);
+      color: var(--uncertain-text);
+    }
+
+    .status-pill.status-checking .status-dot,
+    .status-pill.status-waking .status-dot {
       background: #f59e0b;
+      box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6);
       animation: pulseYellow 1.5s infinite;
     }
 
@@ -823,27 +720,6 @@
   </style>
 </head>
 <body>
-  <!-- Boot / Loading Screen -->
-  <div id="render-boot-screen">
-    <div class="boot-card">
-      <div class="boot-logo-wrapper">
-        <img src="/codesentra-logo.jpg" alt="CodeSentra" class="boot-logo-img">
-      </div>
-
-      <h1 class="boot-title">CodeSentra</h1>
-      <p class="boot-subtitle">Detect AI-generated code instantly.</p>
-
-      <div class="boot-progress-track">
-        <div class="boot-progress-bar"></div>
-      </div>
-
-      <div class="boot-status-row">
-        <div class="boot-spinner"></div>
-        <span id="boot-status-text">Starting CodeSentra...</span>
-      </div>
-    </div>
-  </div>
-
   <header>
     <div class="brand-wrap">
       <img src="/codesentra-logo.jpg" alt="CodeSentra Logo" class="brand-logo-img">
@@ -887,7 +763,7 @@
       </div>
 
       <div class="editor-statusbar">
-        <span id="line-char-info">0 lines â€¢ 0 chars</span>
+        <span id="line-char-info">0 lines • 0 chars</span>
         <button id="btn-analyze" class="btn-run">
           <svg class="btn-spinner" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.3"></circle>
@@ -986,18 +862,6 @@
     const bannerErrorDesc = document.getElementById("banner-error-desc");
     const bannerRetryBtn = document.getElementById("btn-banner-retry");
 
-    // Boot Overlay Elements
-    const bootScreen = document.getElementById("render-boot-screen");
-    const bootStatusPill = document.getElementById("boot-status-pill");
-    const bootStatusText = document.getElementById("boot-status-text");
-    const bootTimer = document.getElementById("boot-timer");
-
-    let isBackendAvailable = null;
-    let isCheckingHealth = false;
-    let bootCompleted = false;
-    let bootStartTime = performance.now();
-    let bootTimerInterval = null;
-
     // Backend API Resolution:
     // If served by the backend directly, use relative path.
     // If deployed as a Render static site or other host, point to the Render backend service.
@@ -1009,105 +873,77 @@
           : "https://codesentra.onrender.com"
     );
 
-    // --- Startup Boot Watcher ---
-    function updateBootTimer() {
-      const elapsedSec = Math.floor((performance.now() - bootStartTime) / 1000);
-      if (elapsedSec > 40 && !bootCompleted) {
-        bootStatusText.textContent = "Almost ready...";
-      } else if (elapsedSec > 15 && !bootCompleted) {
-        bootStatusText.textContent = "Loading model, this may take a moment...";
-      }
-    }
+    let isBackendAvailable = null;
+    let isCheckingHealth = false;
+    let healthRetryTimer = null;
+    let wakeStart = null;
 
-    async function initialBootCheck() {
-      if (bootTimerInterval) clearInterval(bootTimerInterval);
-      bootTimerInterval = setInterval(updateBootTimer, 1000);
-
-      const pollUntilReady = async () => {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 4500);
-
-          const res = await fetch(`${API_BASE}/api/health`, { signal: controller.signal });
-          clearTimeout(timeoutId);
-
-          if (res.ok) {
-            bootCompleted = true;
-            clearInterval(bootTimerInterval);
-
-            bootStatusText.textContent = "Ready!";
-
-            isBackendAvailable = true;
-            statusPill.className = "status-pill status-online";
-            statusText.textContent = "Online";
-            statusPill.title = "CodeSentra is ready";
-            offlineBanner.style.display = "none";
-
-            setTimeout(() => {
-              bootScreen.classList.add("boot-done");
-              setTimeout(() => { bootScreen.style.display = "none"; }, 550);
-            }, 300);
-
-            return;
-          }
-        } catch (e) {
-          bootStatusText.textContent = "Starting up, please wait...";
-        }
-
-        if (!bootCompleted) {
-          setTimeout(pollUntilReady, 1500);
-        }
-      };
-
-      pollUntilReady();
-    }
-
-    initialBootCheck();
-
-    // Recurring heartbeat every 10 seconds once booted
-    setInterval(() => {
-      if (bootCompleted) {
-        checkBackendHealth(false);
-      }
-    }, 10000);
-
-    // --- Backend Health Monitor (for live post-boot status) ---
+    // --- Backend Health Monitor (Status shown strictly on the top pill) ---
     async function checkBackendHealth(interactive = false) {
       if (isCheckingHealth) return;
       isCheckingHealth = true;
 
-      if (interactive) {
+      if (interactive || isBackendAvailable === null) {
         statusPill.className = "status-pill status-checking";
-        statusText.textContent = "Checking...";
+        statusText.textContent = "Connecting...";
+        statusPill.title = "Checking backend engine status...";
       }
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        // Generous 30s timeout so cold-boot connections aren't prematurely dropped
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-        const res = await fetch(`${API_BASE}/api/health`, { signal: controller.signal });
+        const res = await fetch(`${API_BASE}/api/health`, {
+          signal: controller.signal,
+          headers: { "Accept": "application/json" }
+        });
         clearTimeout(timeoutId);
 
         if (res.ok) {
           isBackendAvailable = true;
+          wakeStart = null;
           statusPill.className = "status-pill status-online";
           statusText.textContent = "Engine Online";
-          statusPill.title = "Analysis engine is connected and operational";
+          statusPill.title = "Backend engine is connected and ready to analyze.";
           offlineBanner.style.display = "none";
+          if (healthRetryTimer) {
+            clearTimeout(healthRetryTimer);
+            healthRetryTimer = null;
+          }
         } else {
           throw new Error(`HTTP ${res.status}`);
         }
       } catch (e) {
+        // Server is inactive / cold-booting on Render free tier
         isBackendAvailable = false;
-        statusPill.className = "status-pill status-offline";
-        statusText.textContent = "Engine Offline";
-        statusPill.title = "Engine unreachable (Click to retry)";
-        bannerErrorDesc.textContent = "Cannot reach analysis engine service.";
-        offlineBanner.style.display = "flex";
+        if (!wakeStart) wakeStart = performance.now();
+        const elapsed = Math.floor((performance.now() - wakeStart) / 1000);
+
+        // Show inactive / waking status cleanly on the top pill without disturbing the UI
+        statusPill.className = "status-pill status-waking";
+        statusText.textContent = elapsed > 5 ? "Engine Waking Up..." : "Connecting...";
+        statusPill.title = "Render free tier instance is spinning up in background (~30s). Click to test connection.";
+
+        // Automatically retry in background every 3.5s until online
+        if (!healthRetryTimer) {
+          healthRetryTimer = setTimeout(() => {
+            healthRetryTimer = null;
+            checkBackendHealth(false);
+          }, 3500);
+        }
       } finally {
         isCheckingHealth = false;
       }
     }
+
+    // Launch initial check (non-blocking, UI stays 100% interactive)
+    checkBackendHealth(false);
+
+    // Heartbeat every 20 seconds
+    setInterval(() => {
+      checkBackendHealth(false);
+    }, 20000);
 
     statusPill.addEventListener("click", () => checkBackendHealth(true));
     bannerRetryBtn.addEventListener("click", () => checkBackendHealth(true));
@@ -1159,9 +995,13 @@
       analyzeBtnText.textContent = "Analyzing...";
       errorBox.style.display = "none";
 
+      const wakeNoticeTimer = setTimeout(() => {
+        analyzeBtnText.textContent = "Waking engine & analyzing...";
+      }, 3500);
+
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 18000);
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
 
         const res = await fetch(`${API_BASE}/api/analyze`, {
           method: "POST",
@@ -1170,15 +1010,17 @@
           signal: controller.signal
         }).catch(networkErr => {
           clearTimeout(timeoutId);
+          clearTimeout(wakeNoticeTimer);
           isBackendAvailable = false;
           statusPill.className = "status-pill status-offline";
           statusText.textContent = "Engine Offline";
           bannerErrorDesc.textContent = "Cannot reach analysis engine service.";
           offlineBanner.style.display = "flex";
-          throw new Error("Unable to reach the analysis service. The server instance may be cold-booting or temporarily unavailable.");
+          throw new Error("Unable to reach the analysis service. The server instance may be cold-booting or temporarily unavailable. Please retry in a few moments.");
         });
 
         clearTimeout(timeoutId);
+        clearTimeout(wakeNoticeTimer);
 
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
